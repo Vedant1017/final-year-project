@@ -40,3 +40,16 @@ ownerRouter.post('/orders/:orderId/fulfill', async (req: AuthedRequest, res) => 
   res.json({ success: true, order: { id: order.id, status: order.status } });
 });
 
+ownerRouter.post('/orders/clear', async (req: AuthedRequest, res) => {
+  const ownerId = req.user!.sub;
+  const shopRepo = AppDataSource.getRepository(Shop);
+  const shops = await shopRepo.find({ where: { ownerId } });
+  const shopIds = shops.map((s) => s.id);
+  if (!shopIds.length) return res.json({ success: true, deleted: 0 });
+
+  const orderRepo = AppDataSource.getRepository(Order);
+  const toDelete = await orderRepo.count({ where: { shopId: In(shopIds) } });
+  await orderRepo.delete({ shopId: In(shopIds) });
+  return res.json({ success: true, deleted: toDelete });
+});
+

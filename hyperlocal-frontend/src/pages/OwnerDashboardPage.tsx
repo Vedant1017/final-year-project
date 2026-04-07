@@ -51,6 +51,22 @@ export function OwnerDashboardPage() {
     await load();
   };
 
+  const clearAllOrders = async () => {
+    if (!token) return;
+    const ok = window.confirm('Clear ALL orders for all your shops? This cannot be undone.');
+    if (!ok) return;
+    setError(null);
+    setLoading(true);
+    try {
+      await apiFetch(`/owner/orders/clear`, { token, method: 'POST', body: {} });
+      await load();
+    } catch (e: any) {
+      setError(e?.message ?? 'Failed to clear orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const restock = async (productId: string) => {
     if (!token) return;
     const amt = restockAmountByProductId[productId] ?? 10;
@@ -168,12 +184,21 @@ export function OwnerDashboardPage() {
                   </button>
                 ))}
               </div>
-              <input
-                className="w-full md:w-72 rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500"
-                placeholder="Search by order id…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+              <div className="flex gap-2 w-full md:w-auto">
+                <input
+                  className="w-full md:w-64 rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  placeholder="Search by order id…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                  onClick={clearAllOrders}
+                  className="shrink-0 px-4 py-2 rounded-xl bg-red-600 text-white font-black hover:bg-red-700 disabled:opacity-50"
+                  disabled={loading || orders.length === 0}
+                >
+                  Clear orders
+                </button>
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

@@ -101,7 +101,10 @@ export function createCheckoutRouter(inventoryGateway: InventoryGateway) {
     return res.status(201).json({ success: true, order: { id: orderId, status: 'PENDING_PAYMENT' } });
   });
 
-  const confirmSchema = z.object({ orderId: z.string().uuid() });
+  const confirmSchema = z.object({
+    orderId: z.string().uuid(),
+    method: z.enum(['UPI', 'CARD', 'NETBANKING', 'COD']).optional()
+  });
 
   checkoutRouter.post('/payments/mock/confirm', async (req: AuthedRequest, res) => {
     const parsed = confirmSchema.safeParse(req.body);
@@ -114,7 +117,7 @@ export function createCheckoutRouter(inventoryGateway: InventoryGateway) {
 
     order.status = 'PAID';
     await orderRepo.save(order);
-    return res.json({ success: true, order: { id: order.id, status: order.status } });
+    return res.json({ success: true, order: { id: order.id, status: order.status, method: parsed.data.method ?? 'UPI' } });
   });
 
   return checkoutRouter;
