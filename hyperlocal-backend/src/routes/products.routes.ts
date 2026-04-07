@@ -16,3 +16,10 @@ productsRouter.get('/shops/:shopId/products', async (req, res) => {
   res.json({ success: true, products });
 });
 
+productsRouter.get('/:id', async (req, res) => {
+  const repo = AppDataSource.getRepository(Product);
+  const product = await repo.findOne({ where: { id: req.params.id } });
+  if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+  res.json({ success: true, product });
+});
+

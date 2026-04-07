@@ -10,6 +10,7 @@ import { productsRouter } from './routes/products.routes';
 import { cartRouter } from './routes/cart.routes';
 import { createCheckoutRouter } from './routes/checkout.routes';
 import { ownerRouter } from './routes/owner.routes';
+import { createOwnerInventoryRouter } from './routes/owner.inventory.routes';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use('/api/v1/products', productsRouter);
 app.use('/api/v1/cart', cartRouter);
 app.use('/api/v1/checkout', createCheckoutRouter(inventoryGateway));
 app.use('/api/v1/owner', ownerRouter);
+app.use('/api/v1/owner', createOwnerInventoryRouter(inventoryGateway));
 
 app.get('/api/v1/search', (req: Request, res: Response) => {
   // Stub for Geo Redis search

@@ -4,8 +4,10 @@ import { apiFetch } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import { DeliveryTrackerCard } from '../components/DeliveryTrackerCard';
+import { LiveMapDelivery } from '../components/LiveMapDelivery';
 
-type Product = { id: string; sku: string; name: string; price: string; stock: number; shopId: string };
+type Product = { id: string; sku: string; name: string; price: string; stock: number; shopId: string; description?: string | null };
 
 const imageBySku: Record<string, string> = {
   'MILK-500': '/organic_milk_product.png',
@@ -123,6 +125,11 @@ export function CustomerHomePage() {
           <div className="h-2 bg-gradient-to-r from-brand-900 via-brand-500 to-brand-300" />
         </div>
 
+        {/* Real-time map with fake shops */}
+        <div className="mb-6">
+          <LiveMapDelivery />
+        </div>
+
         {/* Search */}
         <div className="mb-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
           <div className="relative">
@@ -152,7 +159,11 @@ export function CustomerHomePage() {
           {filtered.map((p) => {
             const qty = cartQtyByProductId.get(p.id) ?? 0;
             return (
-              <div key={p.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+              <button
+                key={p.id}
+                onClick={() => nav(`/product/${p.id}`)}
+                className="text-left bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+              >
                 <div className="aspect-square bg-gray-50">
                   <ProductImage src={imageBySku[p.sku]} alt={p.name} />
                 </div>
@@ -160,13 +171,20 @@ export function CustomerHomePage() {
                   <div>
                     <div className="text-sm font-black text-gray-900 line-clamp-2">{p.name}</div>
                     <div className="text-xs text-gray-500 mt-0.5 font-semibold">{p.sku}</div>
+                    <div className="text-xs text-gray-600 mt-1 font-semibold line-clamp-2">
+                      {p.description ?? 'Tap to view details'}
+                    </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="font-black text-brand-900">₹{p.price}</span>
                     <div className="flex items-center gap-2">
                       {qty > 0 && (
                         <button
-                          onClick={() => setQuantity(p.id, qty - 1)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setQuantity(p.id, qty - 1);
+                          }}
                           className="bg-brand-50 hover:bg-brand-100 text-brand-900 w-8 h-8 rounded-full flex items-center justify-center border border-brand-100"
                         >
                           <span className="text-lg leading-none">-</span>
@@ -174,7 +192,11 @@ export function CustomerHomePage() {
                       )}
                       {qty > 0 && <span className="font-black text-sm text-gray-900 w-3 text-center">{qty}</span>}
                       <button
-                        onClick={() => setQuantity(p.id, qty + 1)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setQuantity(p.id, qty + 1);
+                        }}
                         className="bg-brand-900 hover:bg-brand-500 text-white w-8 h-8 rounded-full flex items-center justify-center"
                       >
                         <span className="text-xl leading-none">+</span>
@@ -183,7 +205,7 @@ export function CustomerHomePage() {
                   </div>
                   <div className="mt-2 text-xs text-gray-500 font-semibold">{p.stock} left</div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

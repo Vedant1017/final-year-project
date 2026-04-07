@@ -9,6 +9,7 @@ import { CartItem } from '../entities/CartItem';
 import { Order } from '../entities/Order';
 import { OrderItem } from '../entities/OrderItem';
 import { Init00011600000000000 } from './migrations/0001-Init';
+import { AddProductDescription16000000000001 } from './migrations/0002-AddProductDescription';
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ export const AppDataSource = new DataSource({
   password: databaseUrl ? undefined : process.env.DB_PASSWORD ?? 'postgres',
   database: databaseUrl ? undefined : process.env.DB_NAME ?? 'hyperlocal',
   entities: [User, Shop, Product, Cart, CartItem, Order, OrderItem],
-  migrations: [Init00011600000000000],
+  migrations: [Init00011600000000000, AddProductDescription16000000000001],
   synchronize: false,
   logging: false
 });

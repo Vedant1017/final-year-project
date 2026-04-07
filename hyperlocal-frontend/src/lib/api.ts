@@ -7,7 +7,8 @@ export async function apiFetch<T>(
   path: string,
   opts: { method?: string; token?: string | null; body?: unknown } = {}
 ): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const url = `${API_BASE_URL}${path}`;
+  const res = await fetch(url, {
     method: opts.method ?? (opts.body ? 'POST' : 'GET'),
     headers: {
       'Content-Type': 'application/json',
@@ -16,12 +17,22 @@ export async function apiFetch<T>(
     body: opts.body ? JSON.stringify(opts.body) : undefined
   });
 
+  const contentType = res.headers.get('content-type') ?? '';
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  const isJson = contentType.toLowerCase().includes('application/json');
+  const data = text && isJson ? JSON.parse(text) : null;
 
   if (!res.ok) {
-    const msg = data?.message ?? `Request failed (${res.status})`;
+    const msg =
+      data?.message ??
+      (isJson
+        ? `Request failed (${res.status})`
+        : `Request failed (${res.status}). Expected JSON but got: ${contentType || 'unknown'} from ${url}`);
     throw new Error(msg);
+  }
+
+  if (!isJson) {
+    throw new Error(`Expected JSON but got: ${contentType || 'unknown'} from ${url}`);
   }
 
   return data as T;

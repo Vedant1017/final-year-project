@@ -5,6 +5,7 @@ import { CustomerHomePage } from './pages/CustomerHomePage';
 import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { OwnerDashboardPage } from './pages/OwnerDashboardPage';
+import { ProductDetailsPage } from './pages/ProductDetailsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 export default function App() {
@@ -18,6 +19,14 @@ export default function App() {
         element={
           <ProtectedRoute role="CUSTOMER">
             <CustomerHomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/product/:id"
+        element={
+          <ProtectedRoute role="CUSTOMER">
+            <ProductDetailsPage />
           </ProtectedRoute>
         }
       />
