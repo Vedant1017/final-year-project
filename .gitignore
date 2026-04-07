@@ -1,0 +1,33 @@
+## OS / editor
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
+
+## Env / secrets
+.env
+.env.*
+!.env.example
+
+## Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+## Builds
+dist/
+build/
+.vite/
+
+## Large documents (project reports/ppts/papers)
+Project/ppt/
+*.pdf
+*.pptx
+*.docx
+
+## TypeScript
+*.tsbuildinfo
+
