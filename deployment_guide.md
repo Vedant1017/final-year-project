@@ -10,9 +10,7 @@ This guide walks you through deploying your full-stack application for free usin
 ---
 
 ## 1. Prepare Your GitHub Repository
-Push both your `hyperlocal-backend` and `hyperlocal-frontend` folders to a GitHub repository.
-> [!NOTE]
-> If they are in the same repo, that's fine. If they are separate, follow the steps below for each.
+Push your entire folder to a single GitHub repository. Since your frontend and backend are in subdirectories, you will need to specify the **Root Directory** during deployment.
 
 ---
 
@@ -24,6 +22,7 @@ Render is perfect for Node.js apps with WebSockets.
 3. Connect your GitHub repository.
 4. **Configuration**:
    - **Name**: `snapcart-backend`
+   - **Root Directory**: `hyperlocal-backend`  <-- **CRITICAL FOR MONOREPO**
    - **Environment**: `Node`
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
@@ -45,7 +44,7 @@ Vercel is the best platform for React/Vite apps.
 3. Import your GitHub repository.
 4. **Build Settings**:
    - **Framework Preset**: Vite
-   - **Root Directory**: `hyperlocal-frontend` (if applicable)
+   - **Root Directory**: `hyperlocal-frontend`  <-- **CRITICAL FOR MONOREPO**
 5. **Environment Variables**:
    - Add `VITE_API_BASE_URL`: `https://snapcart-backend.onrender.com` (The URL you got from Render).
 6. **Deploy**: Vercel will give you a URL like `https://snapcart-frontend.vercel.app`.
