@@ -5,6 +5,9 @@ import './index.css';
 import 'leaflet/dist/leaflet.css';
 import { BrowserRouter } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
+import { registerSW } from 'virtual:pwa-register';
+
+registerSW({ immediate: true });
 
 useAuthStore.getState().hydrate();
 

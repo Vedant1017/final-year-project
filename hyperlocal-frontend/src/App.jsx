@@ -13,10 +13,13 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { SellerPendingGate } from './components/SellerPendingGate';
 import { OrderTrackingPage } from './pages/OrderTrackingPage';
 import { DeliveryDashboardPage } from './pages/DeliveryDashboardPage';
+import { InstallPrompt } from './components/InstallPrompt';
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <InstallPrompt />
+      <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
