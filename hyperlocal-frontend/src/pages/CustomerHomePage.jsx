@@ -133,6 +133,22 @@ export function CustomerHomePage() {
         </div>
       </header>
 
+       <div className="mt-10 mb-6 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          <div className="p-6 md:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-black text-brand-900 border border-brand-100">
+              Blinkit-style quick shop
+            </div>
+            <div className="mt-3 text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+              Welcome to <span className="text-brand-900">SnapCart Lite</span>
+            </div>
+            <div className="mt-2 text-sm md:text-base text-gray-600 font-semibold max-w-2xl">
+              Add items to your cart, checkout, and confirm payment in seconds. Designed for your final-year demo—clean, fast,
+              and friendly.
+            </div>
+          </div>
+          <div className="h-2 bg-gradient-to-r from-brand-900 via-brand-500 to-brand-300" />
+        </div>
+
       <main className="container mx-auto px-4 md:px-8 max-w-7xl pt-6">
         {/* Search + products first so they’re visible right after login/signup */}
         <div className="mb-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
@@ -258,21 +274,7 @@ export function CustomerHomePage() {
           </div>
         )}
 
-        <div className="mt-10 mb-6 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-black text-brand-900 border border-brand-100">
-              Blinkit-style quick shop
-            </div>
-            <div className="mt-3 text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-              Welcome to <span className="text-brand-900">SnapCart Lite</span>
-            </div>
-            <div className="mt-2 text-sm md:text-base text-gray-600 font-semibold max-w-2xl">
-              Add items to your cart, checkout, and confirm payment in seconds. Designed for your final-year demo—clean, fast,
-              and friendly.
-            </div>
-          </div>
-          <div className="h-2 bg-gradient-to-r from-brand-900 via-brand-500 to-brand-300" />
-        </div>
+       
 
         <div className="mb-6">
           <LiveMapDelivery />
