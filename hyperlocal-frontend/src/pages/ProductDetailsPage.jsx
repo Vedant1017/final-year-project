@@ -1,44 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowUpDown, MapPin, Tag, Info, ShoppingCart, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
+import { ProductImage } from './CustomerHomePage';
 
-const imageBySku = {
-  'MILK-500': '/organic_milk_product.png',
-  'BREAD-001': 'https://www.themealdb.com/images/ingredients/Bread.png',
-  'TOMATO-01': 'https://www.themealdb.com/images/ingredients/Tomatoes.png',
-  'BANANA-01': 'https://www.themealdb.com/images/ingredients/Banana.png',
-  'EGGS-12': 'https://www.themealdb.com/images/ingredients/Eggs.png',
-  'CARROT-01': 'https://www.themealdb.com/images/ingredients/Carrots.png',
-  'APPLE-01': 'https://www.themealdb.com/images/ingredients/Apple.png',
-  'RICE-5KG': 'https://www.themealdb.com/images/ingredients/Rice.png',
-  'COFFEE-01': 'https://www.themealdb.com/images/ingredients/Coffee.png',
-  'CHIPS-01': 'https://images.unsplash.com/photo-1621939514649-280e2aa3c0a9?auto=format&fit=crop&w=800&q=80',
-  'COLA-01': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
-  'ONION-01': 'https://www.themealdb.com/images/ingredients/Onions.png',
-  'YOGURT-01': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80'
-};
 
-function Img({ src, alt }) {
-  const [current, setCurrent] = useState(src && src.trim() ? src : '/product_placeholder.svg');
-  useEffect(() => {
-    setCurrent(src && src.trim() ? src : '/product_placeholder.svg');
-  }, [src]);
-  return (
-    <img
-      src={current}
-      alt={alt}
-      className="w-full h-full object-contain"
-      onError={() => current !== '/product_placeholder.svg' && setCurrent('/product_placeholder.svg')}
-    />
-  );
-}
 
 export function ProductDetailsPage() {
   const nav = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
   const { items, refresh, setQuantity, loading } = useCartStore();
 
   const storeQty = useMemo(() => {
@@ -66,6 +42,46 @@ export function ProductDetailsPage() {
       }
     })();
   }, [id]);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setLocationError('Enable location for price comparisons.')
+    );
+  }, []);
+
+  useEffect(() => {
+    if (product && userLocation) {
+        const nameParts = product.name.toLowerCase().split(/\s+/);
+        const fillers = [
+            'organic', 'fresh', 'farm', 'premium', 'whole', 'natural', 'pure', 'ripe', 'red', 'white', 'black', 'green', 'fresh', 'best', 'quality',
+            'kg', 'g', 'gram', 'ml', 'l', 'liter', 'pack', 'pc', 'piece', 'units', 'box', 'bottle'
+        ];
+        
+        // Filter out fillers, numbers, and words starting with a number (like 500ml)
+        const keywords = nameParts.filter(word => {
+            if (fillers.includes(word)) return false;
+            if (/^\d/.test(word)) return false; // Ignore if starts with a number
+            if (word.length <= 1) return false; // Ignore single characters
+            return true;
+        });
+        
+        // If everything was filtered out, just use the first word to avoid empty search
+        const q = keywords.length > 0 ? keywords.join(' ') : nameParts[0];
+
+        api.get('discovery/search', {
+            params: {
+              q: q, 
+              lat: userLocation.lat,
+              lng: userLocation.lng
+            }
+        }).then(res => {
+            // Filter out current product
+            const filtered = (res.data.nearby_shops || []).filter(item => item.id !== id);
+            setSimilarProducts(filtered);
+        }).catch(console.error);
+    }
+  }, [product, userLocation, id]);
 
   if (error) {
     return (
@@ -117,10 +133,8 @@ export function ProductDetailsPage() {
 
       <main className="max-w-4xl mx-auto px-4 py-6">
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden md:flex md:gap-6">
-          <div className="md:w-1/2 bg-gray-50 p-6">
-            <div className="aspect-square">
-              <Img src={product.imageUrl || imageBySku[product.sku]} alt={product.name} />
-            </div>
+          <div className="md:w-1/2">
+            <ProductImage src={product.imageUrl} alt={product.name} />
           </div>
           <div className="md:w-1/2 p-6 flex flex-col justify-between">
             <div>
@@ -177,6 +191,68 @@ export function ProductDetailsPage() {
             </div>
           </div>
         </div>
+
+        {/* Market Comparison Section */}
+        {similarProducts.length > 0 && (
+            <div className="mt-10 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="p-6 border-b border-gray-50 bg-slate-900 text-white flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-black italic uppercase tracking-tight">Market Comparison</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Finding the best price for "{product.name.split(' ')[0]}"</p>
+                    </div>
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                        <ArrowUpDown size={18} className="text-brand-300" />
+                    </div>
+                </div>
+
+                <div className="divide-y divide-gray-50">
+                    {similarProducts.map((other, idx) => {
+                        const priceDiff = parseFloat(other.price) - parseFloat(product.price);
+                        const isCheaper = priceDiff < 0;
+                        const isSame = priceDiff === 0;
+
+                        return (
+                            <div key={idx} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50 transition-colors group">
+                                <div className="flex items-center gap-4">
+                                    <ProductImage src={other.imageUrl} alt={other.product_name} className="w-16 h-16 rounded-xl" />
+                                    <div className={`p-3 rounded-2xl flex flex-col items-center justify-center min-w-[64px] ${isCheaper ? 'bg-green-50 text-green-700' : isSame ? 'bg-slate-50 text-slate-500' : 'bg-amber-50 text-amber-700'}`}>
+                                        <div className="text-[9px] font-black uppercase mb-0.5">Price</div>
+                                        <div className="text-sm font-black">₹{other.price}</div>
+                                    </div>
+                                    <div>
+                                        <div className="font-black text-slate-900 group-hover:text-brand-900 transition-colors">{other.shop_name}</div>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 rounded-md text-slate-500">{other.brand}</span>
+                                            <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 rounded-md text-slate-500">{other.quantity}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between md:justify-end gap-6">
+                                    <div className="text-right">
+                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-end gap-1">
+                                            <MapPin size={10} /> {other.distance_km}km
+                                        </div>
+                                        <div className={`text-xs font-black mt-1 ${isCheaper ? 'text-green-600' : isSame ? 'text-slate-400' : 'text-amber-600'}`}>
+                                            {isSame ? 'Same price' : `${isCheaper ? 'Cheaper' : 'More expensive'} by ₹${Math.abs(priceDiff).toFixed(2)}`}
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => nav(`/product/${other.id}`)} // Note: Discovery API needs to return product ID for this link
+                                        className="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-brand-900 group-hover:text-white transition-all shadow-sm"
+                                    >
+                                        <ChevronRight size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="p-4 bg-slate-50 text-center">
+                    <p className="text-[10px] font-semibold text-slate-400 italic">Prices and availability are shown for shops within a 5km radius of your location.</p>
+                </div>
+            </div>
+        )}
       </main>
     </div>
   );

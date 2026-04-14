@@ -40,7 +40,7 @@ ownerRouter.post('/orders/:orderId/status', async (req, res) => {
 
 ownerRouter.post('/setup-shop', async (req, res) => {
   const ownerId = req.user.sub;
-  const { name, shopType, openTime, closeTime, ownerName, contactPhone } = req.body;
+  const { name, shopType, openTime, closeTime, ownerName, contactPhone, lat, lng } = req.body;
 
   if (!name) return res.status(400).json({ success: false, message: 'Shop name is required' });
 
@@ -51,7 +51,11 @@ ownerRouter.post('/setup-shop', async (req, res) => {
     openTime: openTime || '09:00',
     closeTime: closeTime || '21:00',
     ownerName,
-    contactPhone
+    contactPhone,
+    location: {
+      type: 'Point',
+      coordinates: [lng || 73.8567, lat || 18.5204]
+    }
   });
 
   await UserModel.findByIdAndUpdate(ownerId, { shopName: name });

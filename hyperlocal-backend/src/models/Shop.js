@@ -13,11 +13,23 @@ const shopSchema = new Schema(
     openTime: { type: String, default: '09:00' },
     closeTime: { type: String, default: '21:00' },
     ownerName: { type: String },
-    contactPhone: { type: String }
+    contactPhone: { type: String },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number],
+        default: [73.8567, 18.5204] // Pune default
+      }
+    }
   },
   { timestamps: true }
 );
 
 applyIdJson(shopSchema);
+shopSchema.index({ location: '2dsphere' });
 
 export const ShopModel = mongoose.model('Shop', shopSchema);

@@ -14,6 +14,7 @@ import { SellerPendingGate } from './components/SellerPendingGate';
 import { OrderTrackingPage } from './pages/OrderTrackingPage';
 import { OrderListPage } from './pages/OrderListPage';
 import { DeliveryDashboardPage } from './pages/DeliveryDashboardPage';
+import { ProductDiscoveryPage } from './pages/ProductDiscoveryPage';
 import { InstallPrompt } from './components/InstallPrompt';
 
 export default function App() {
@@ -79,6 +80,14 @@ export default function App() {
         element={
           <ProtectedRoute role="CUSTOMER">
             <OrderListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/discovery"
+        element={
+          <ProtectedRoute role="CUSTOMER">
+            <ProductDiscoveryPage />
           </ProtectedRoute>
         }
       />

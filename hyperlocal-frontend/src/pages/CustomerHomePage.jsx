@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ShoppingCart, Search } from 'lucide-react';
+import { ShoppingCart, Search, ArrowUpDown } from 'lucide-react';
 import { api } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
 import { Link, useNavigate } from 'react-router-dom';
@@ -22,22 +22,24 @@ const imageBySku = {
   'YOGURT-01': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80'
 };
 
-function ProductImage({ src, alt }) {
+export function ProductImage({ src, alt, className = "" }) {
   const [current, setCurrent] = useState(src && src.trim() ? src : '/product_placeholder.svg');
   useEffect(() => {
     setCurrent(src && src.trim() ? src : '/product_placeholder.svg');
   }, [src]);
 
   return (
-    <img
-      src={current}
-      alt={alt}
-      className="w-full h-full object-cover"
-      loading="lazy"
-      onError={() => {
-        if (current !== '/product_placeholder.svg') setCurrent('/product_placeholder.svg');
-      }}
-    />
+    <div className={`aspect-square overflow-hidden bg-gray-50 rounded-2xl ${className}`}>
+        <img
+          src={current}
+          alt={alt}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={() => {
+            if (current !== '/product_placeholder.svg') setCurrent('/product_placeholder.svg');
+          }}
+        />
+    </div>
   );
 }
 
@@ -133,7 +135,7 @@ export function CustomerHomePage() {
         </div>
       </header>
 
-      <div className="mt-10 mb-6 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+      <div className="mt-10 mb-6 md:mx-36 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
         <div className="p-6 md:p-8">
           <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-black text-brand-900 border border-brand-100">
             Blinkit-style quick shop
@@ -164,6 +166,24 @@ export function CustomerHomePage() {
               aria-label="Search products"
             />
           </div>
+          
+          <Link 
+            to="/discovery"
+            className="mt-4 flex items-center justify-between p-4 bg-gradient-to-r from-brand-900 to-indigo-900 rounded-2xl text-white group hover:scale-[1.01] transition-all shadow-xl shadow-brand-900/10"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                 <ArrowUpDown size={20} className="text-brand-300" />
+              </div>
+              <div>
+                <div className="font-black text-sm uppercase tracking-wider">Price Comparison</div>
+                <div className="text-[10px] font-bold text-brand-100 italic">Find the lowest prices in 5km radius</div>
+              </div>
+            </div>
+            <button className="bg-white text-brand-900 px-3 py-1.5 rounded-lg font-black text-[10px] shadow-lg group-hover:bg-brand-50">
+              OPEN FINDER
+            </button>
+          </Link>
         </div>
 
         {orders.length > 0 && (
@@ -243,15 +263,12 @@ export function CustomerHomePage() {
             {filtered.map((p) => {
               const qty = cartQtyByProductId.get(p.id) ?? 0;
               return (
-                <button
+                <div
                   key={p.id}
-                  type="button"
                   onClick={() => nav(`/product/${p.id}`)}
-                  className="text-left bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md hover:border-brand-300 transition-all flex flex-col"
+                  className="cursor-pointer text-left bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md hover:border-brand-300 transition-all flex flex-col"
                 >
-                  <div className="aspect-square bg-gray-50 p-4">
-                    <ProductImage src={p.imageUrl || imageBySku[p.sku]} alt={p.name} />
-                  </div>
+                  <ProductImage src={p.imageUrl} alt={p.name} />
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="text-sm font-black text-gray-900 line-clamp-2 leading-tight">{p.name}</div>
@@ -278,7 +295,7 @@ export function CustomerHomePage() {
                     </div>
                     <div className="mt-3 text-xs text-gray-400 font-bold">{p.stock} left in stock</div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

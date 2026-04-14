@@ -13,6 +13,7 @@ import { ownerRouter } from './routes/owner.routes.js';
 import { createOwnerInventoryRouter } from './routes/owner.inventory.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
 import { deliveryRouter } from './routes/delivery.routes.js';
+import { discoveryRouter } from './routes/discovery.routes.js';
 import { LocationGateway } from './location.gateway.js';
 import { ChatGateway } from './chat.gateway.js';
 
@@ -48,6 +49,7 @@ app.use('/api/v1/owner', ownerRouter);
 app.use('/api/v1/owner', createOwnerInventoryRouter(inventoryGateway));
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/delivery', deliveryRouter);
+app.use('/api/v1/discovery', discoveryRouter);
 
 /** Health check for monitoring and easy deployment verification */
 app.get('/api/v1/ping', (_req, res) => {

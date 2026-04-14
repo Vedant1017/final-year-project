@@ -14,7 +14,9 @@ const productSchema = new Schema(
     stock: { type: Number, required: true },
     shopId: { type: String, required: true, index: true },
     shopName: { type: String, default: null },
-    imageUrl: { type: String, default: null }
+    imageUrl: { type: String, default: null },
+    brand: { type: String, default: '' },
+    quantity: { type: String, default: '' }
   },
   { timestamps: true }
 );

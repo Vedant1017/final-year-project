@@ -85,7 +85,9 @@ function ShopSetupForm({ onComplete }) {
     openTime: '09:00',
     closeTime: '21:00',
     ownerName: '',
-    contactPhone: ''
+    contactPhone: '',
+    lat: null,
+    lng: null
   });
 
   const handleSubmit = async (e) => {
@@ -165,14 +167,26 @@ function ShopSetupForm({ onComplete }) {
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Contact Number</label>
-            <input
-              required
-              className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 text-sm font-semibold focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all outline-none"
-              value={formData.contactPhone}
-              onChange={e => setFormData({ ...formData, contactPhone: e.target.value })}
-              placeholder="e.g. +91 9876543210"
-            />
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Location (Lat, Lng)</label>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                className="flex-1 bg-gray-100 border border-gray-100 rounded-2xl px-5 py-3.5 text-sm font-semibold opacity-70"
+                value={formData.lat ? `${formData.lat.toFixed(4)}, ${formData.lng.toFixed(4)}` : 'Detecting...'}
+              />
+              <button 
+                type="button"
+                onClick={() => {
+                  navigator.geolocation.getCurrentPosition((pos) => {
+                    setFormData(prev => ({ ...prev, lat: pos.coords.latitude, lng: pos.coords.longitude }));
+                  }, (err) => alert('Allow location access to set shop location.'));
+                }}
+                className="px-4 bg-brand-50 text-brand-900 border border-brand-100 rounded-2xl font-black text-xs hover:bg-brand-100 transition-colors"
+                title="Refresh Location"
+              >
+                📍
+              </button>
+            </div>
           </div>
         </div>
 
@@ -195,7 +209,9 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
     price: '',
     stock: 0,
     shopId: '',
-    imageUrl: ''
+    imageUrl: '',
+    brand: '',
+    quantity: ''
   });
 
   useEffect(() => {
@@ -207,7 +223,9 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
         price: product.price || '',
         stock: product.stock || 0,
         shopId: product.shopId || shopId,
-        imageUrl: product.imageUrl || ''
+        imageUrl: product.imageUrl || '',
+        brand: product.brand || '',
+        quantity: product.quantity || ''
       });
     } else {
       setFormData({
@@ -217,7 +235,9 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
         price: '',
         stock: 0,
         shopId: shopId,
-        imageUrl: ''
+        imageUrl: '',
+        brand: '',
+        quantity: ''
       });
     }
   }, [product, shopId, isOpen]);
@@ -296,6 +316,27 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
             <p className="text-[10px] text-gray-500 mt-1 font-semibold italic">
               Note: add image link only and upload the image on gdrive or any cloude platform and paste the link
             </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-700 mb-1 uppercase tracking-wider">Brand</label>
+              <input
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                value={formData.brand}
+                onChange={e => setFormData({ ...formData, brand: e.target.value })}
+                placeholder="e.g. Amul"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-700 mb-1 uppercase tracking-wider">Quantity</label>
+              <input
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                value={formData.quantity}
+                onChange={e => setFormData({ ...formData, quantity: e.target.value })}
+                placeholder="e.g. 500ml"
+              />
+            </div>
           </div>
 
           <div>

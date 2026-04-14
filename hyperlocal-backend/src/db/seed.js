@@ -4,196 +4,154 @@ import { ensureDbInitialized } from './connection.js';
 import { UserModel } from '../models/User.js';
 import { ShopModel } from '../models/Shop.js';
 import { ProductModel } from '../models/Product.js';
+import { CartModel } from '../models/Cart.js';
+import { OrderModel } from '../models/Order.js';
 
-const seedProducts = [
-  {
-    sku: 'MILK-500',
-    name: 'Organic Milk 500ml',
-    description: 'Fresh organic whole milk. Great for tea/coffee, cereal, and smoothies.',
-    price: '30.00',
-    stock: 15
-  },
-  {
-    sku: 'BREAD-001',
-    name: 'Whole Wheat Bread',
-    description: 'Soft whole wheat loaf—perfect for sandwiches and toast.',
-    price: '40.00',
-    stock: 8
-  },
-  {
-    sku: 'TOMATO-01',
-    name: 'Fresh Red Tomatoes (1kg)',
-    description: 'Juicy tomatoes for salads, gravies, and everyday cooking.',
-    price: '45.00',
-    stock: 50
-  },
-  {
-    sku: 'BANANA-01',
-    name: 'Ripe Bananas (1 Dozen)',
-    description: 'Naturally sweet bananas—ideal for snacks and shakes.',
-    price: '60.00',
-    stock: 25
-  },
-  {
-    sku: 'EGGS-12',
-    name: 'Farm Fresh Eggs (12 pack)',
-    description: 'Protein-packed farm eggs for breakfast and baking.',
-    price: '80.00',
-    stock: 5
-  },
-  {
-    sku: 'CARROT-01',
-    name: 'Farm Fresh Carrots',
-    description: 'Crunchy carrots—great for salads, juices, and sabzi.',
-    price: '50.00',
-    stock: 30
-  },
-  {
-    sku: 'APPLE-01',
-    name: 'Crisp Red Apples (1kg)',
-    description: 'Sweet and crunchy apples, handpicked for freshness.',
-    price: '140.00',
-    stock: 18
-  },
-  {
-    sku: 'RICE-5KG',
-    name: 'Basmati Rice (5kg)',
-    description: 'Long-grain basmati with a rich aroma—ideal for biryani.',
-    price: '520.00',
-    stock: 12
-  },
-  {
-    sku: 'COFFEE-01',
-    name: 'Instant Coffee 200g',
-    description: 'Bold instant coffee—quick to prepare, smooth taste.',
-    price: '260.00',
-    stock: 20
-  },
-  {
-    sku: 'CHIPS-01',
-    name: 'Potato Chips (Classic)',
-    description: 'Classic salted chips—crispy and snack-ready.',
-    price: '35.00',
-    stock: 40
-  },
-  {
-    sku: 'COLA-01',
-    name: 'Cola 1.25L',
-    description: 'Chilled cola for parties and quick refreshment.',
-    price: '75.00',
-    stock: 25
-  },
-  {
-    sku: 'ONION-01',
-    name: 'Onions (1kg)',
-    description: 'Cooking onions for everyday meals.',
-    price: '35.00',
-    stock: 40
-  },
-  {
-    sku: 'YOGURT-01',
-    name: 'Curd / Yogurt 400g',
-    description: 'Fresh set curd—great with rice or as a snack.',
-    price: '45.00',
-    stock: 22
-  }
+const demoPassword = 'password123';
+
+const productsData = [
+  // DAIRY
+  { name: 'Organic Milk 500ml', brand: 'Amul', quantity: '500ml', price: '30', category: 'Dairy', sku: 'D001', img: 'https://images.unsplash.com/photo-1550583724-125581f778d3?w=800' },
+  { name: 'Cow Milk 500ml', brand: 'Mother Dairy', quantity: '500ml', price: '28', category: 'Dairy', sku: 'D002', img: 'https://images.unsplash.com/photo-1563636619-e910009355dc?w=800' },
+  { name: 'Full Cream Milk 1L', brand: 'Amul', quantity: '1L', price: '64', category: 'Dairy', sku: 'D003', img: 'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=800' },
+  { name: 'Fresh Curd 400g', brand: 'Nestle', quantity: '400g', price: '45', category: 'Dairy', sku: 'D004', img: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800' },
+  { name: 'Pure Ghee 500ml', brand: 'Patandjali', quantity: '500ml', price: '320', category: 'Dairy', sku: 'D005', img: 'https://images.unsplash.com/photo-1589927986089-35812388d1f4?w=800' },
+
+  // STATIONERY
+  { name: 'Cello Finegrip Pen', brand: 'Cello', quantity: '1 pc', price: '10', category: 'Stationery', sku: 'S001', img: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=800' },
+  { name: 'Cello Gripper Pen', brand: 'Cello', quantity: '1 pc', price: '15', category: 'Stationery', sku: 'S002', img: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800' },
+  { name: 'Reynolds 045 Pen', brand: 'Reynolds', quantity: '1 pc', price: '7', category: 'Stationery', sku: 'S003', img: 'https://images.unsplash.com/photo-1590514125838-8a8b167576f7?w=800' },
+  { name: 'Classmate Notebook', brand: 'Classmate', quantity: '160 pages', price: '60', category: 'Stationery', sku: 'S004', img: 'https://images.unsplash.com/photo-1533467647146-5900501f2042?w=800' },
+  { name: 'Natraj Pencils Box', brand: 'Natraj', quantity: '10 pcs', price: '50', category: 'Stationery', sku: 'S005', img: 'https://images.unsplash.com/photo-1513542789411-b3a5d204d811?w=800' },
+
+  // GROCERY
+  { name: 'Basmati Rice 5kg', brand: 'India Gate', quantity: '5kg', price: '550', category: 'Grocery', sku: 'G001', img: 'https://images.unsplash.com/photo-1586201375761-838634509121?w=800' },
+  { name: 'Fortune Sunflower Oil 1L', brand: 'Fortune', quantity: '1L', price: '165', category: 'Grocery', sku: 'G002', img: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800' },
+  { name: 'Tata Salt 1kg', brand: 'Tata', quantity: '1kg', price: '25', category: 'Grocery', sku: 'G003', img: 'https://images.unsplash.com/photo-1610450937666-3d237198a287?w=800' },
+  { name: 'Aashirvaad Atta 5kg', brand: 'ITC', quantity: '5kg', price: '280', category: 'Grocery', sku: 'G004', img: 'https://images.unsplash.com/photo-1627485750519-216694e99f91?w=800' },
+  { name: 'Maggi Noodles 4-Pack', brand: 'Nestle', quantity: '280g', price: '60', category: 'Grocery', sku: 'G005', img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=800' },
+
+  // SNACKS
+  { name: 'Lays Classic Chips', brand: 'Lays', quantity: '50g', price: '20', category: 'Snacks', sku: 'K001', img: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=800' },
+  { name: 'Kurkure Masala Munch', brand: 'PepsiCo', quantity: '90g', price: '30', category: 'Snacks', sku: 'K002', img: 'https://images.unsplash.com/photo-1600492842240-a36c646ae006?w=800' },
+  { name: 'Oreo Biscuits', brand: 'Cadbury', quantity: '120g', price: '40', category: 'Snacks', sku: 'K003', img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800' },
+  { name: 'Thumbs Up 750ml', brand: 'Coca Cola', quantity: '750ml', price: '45', category: 'Snacks', sku: 'K004', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=800' },
+  { name: 'Red Bull Energy Drink', brand: 'Red Bull', quantity: '250ml', price: '125', category: 'Snacks', sku: 'K005', img: 'https://images.unsplash.com/photo-1613214049841-028bb4f43e08?w=800' },
+
+  // FRUITS/VEG
+  { name: 'Fresh Apples 1kg', brand: 'Shimla', quantity: '1kg', price: '180', category: 'Fruits', sku: 'F001', img: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6bccb?w=800' },
+  { name: 'Ripe Bananas 1 Dozen', brand: 'Local', quantity: '12 pcs', price: '60', category: 'Fruits', sku: 'F002', img: 'https://images.unsplash.com/photo-1571771894821-ad99024177c6?w=800' },
+  { name: 'Fresh Alfonso Mangoes', brand: 'Ratnagiri', quantity: '2 pcs', price: '150', category: 'Fruits', sku: 'F003', img: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800' },
+  { name: 'Potatoes 1kg', brand: 'Local', quantity: '1kg', price: '40', category: 'Fruits', sku: 'F004', img: 'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=800' },
+  { name: 'Onions 1kg', brand: 'Local', quantity: '1kg', price: '35', category: 'Fruits', sku: 'F005', img: 'https://images.unsplash.com/photo-1508747703725-7197771375a0?w=800' },
+
+  // PHARMACY / HYGIENE
+  { name: 'Dettol Soap 125g', brand: 'Dettol', quantity: '125g', price: '45', category: 'Hygiene', sku: 'P001', img: 'https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?w=800' },
+  { name: 'Colgate Max Fresh', brand: 'Colgate', quantity: '150g', price: '95', category: 'Hygiene', sku: 'P002', img: 'https://images.unsplash.com/photo-1559591937-e62030cafa0c?w=800' },
+  { name: 'Hand Sanitizer 500ml', brand: 'Lifebuoy', quantity: '500ml', price: '250', category: 'Hygiene', sku: 'P003', img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800' }
 ];
 
 async function main() {
   await ensureDbInitialized();
+  console.log('Cleaning database...');
+  await UserModel.deleteMany({});
+  await ShopModel.deleteMany({});
+  await ProductModel.deleteMany({});
+  await CartModel.deleteMany({});
+  await OrderModel.deleteMany({});
 
-  const ownerEmail = 'owner@demo.com';
-  const customerEmail = 'customer@demo.com';
-  const demoPassword = 'password123';
   const passwordHash = await bcrypt.hash(demoPassword, 10);
 
-  let owner = await UserModel.findOne({ email: ownerEmail });
-  if (!owner) {
-    owner = await UserModel.create({
-      email: ownerEmail,
-      role: 'OWNER',
-      passwordHash,
-      sellerApproved: true,
-      shopName: 'Fresh Mart' // Setting a default shop name
-    });
-  } else {
-    // Ensure shopName is set if it was previously null
-    if (!owner.shopName) {
-      owner.shopName = 'Fresh Mart';
-      await owner.save();
-    }
-    if (owner.sellerApproved === undefined || owner.sellerApproved === null) {
-      owner.sellerApproved = true;
-      await owner.save();
-    }
+  console.log('Creating 15 users...');
+  const owners = [];
+  const customers = [];
+  const deliveryBoys = [];
+
+  for (let i = 1; i <= 5; i++) {
+    owners.push(await UserModel.create({ email: `owner${i}@demo.com`, role: 'OWNER', passwordHash, sellerApproved: true, shopName: `Shop ${i}` }));
+    customers.push(await UserModel.create({ email: `customer${i}@demo.com`, role: 'CUSTOMER', passwordHash }));
+    deliveryBoys.push(await UserModel.create({ email: `delivery${i}@demo.com`, role: 'DELIVERY_MAN', passwordHash }));
   }
 
-  const adminEmail = 'admin@demo.com';
-  let admin = await UserModel.findOne({ email: adminEmail });
-  if (!admin) {
-    admin = await UserModel.create({ email: adminEmail, role: 'ADMIN', passwordHash, sellerApproved: true });
-  }
+  // Add one Admin
+  await UserModel.create({ email: 'admin@demo.com', role: 'ADMIN', passwordHash });
 
-  let customer = await UserModel.findOne({ email: customerEmail });
-  if (!customer) {
-    customer = await UserModel.create({ email: customerEmail, role: 'CUSTOMER', passwordHash, sellerApproved: true });
-  }
+  console.log('Creating 5 shops...');
+  const shopCoords = [
+    [73.8567, 18.5204], // Shop 1 - Center
+    [73.8400, 18.5300], // Shop 2 - North West
+    [73.8700, 18.5100], // Shop 3 - South East
+    [73.8500, 18.5000], // Shop 4 - South
+    [73.8800, 18.5400]  // Shop 5 - North East
+  ];
 
-  const shopNames = ['Fresh Mart', 'Green Valley Store', 'City Supermarket', 'Local Organic Grocers', 'Daily Needs Hub'];
   const shops = [];
-  for (let idx = 0; idx < shopNames.length; idx++) {
-    const name = shopNames[idx];
-    let s = await ShopModel.findOne({ name, ownerId: owner.id });
-    if (!s) {
-      s = await ShopModel.create({
-        name,
-        ownerId: owner.id,
-        shopType: idx === 0 ? 'Supermarket' : idx === 1 ? 'Dairy' : 'Grocery',
-        openTime: '08:00',
-        closeTime: '22:00',
-        ownerName: 'Demo Owner',
-        contactPhone: '9876543210'
-      });
-    }
+  const shopTypes = ['Supermarket', 'Dairy', 'Stationery', 'Grocery', 'Pharmacy'];
+  
+  for (let i = 0; i < 5; i++) {
+    const s = await ShopModel.create({
+      name: `${owners[i].shopName} Multi-Store`,
+      ownerId: owners[i]._id,
+      shopType: shopTypes[i],
+      openTime: '08:00',
+      closeTime: '22:00',
+      ownerName: `Owner ${i+1}`,
+      contactPhone: `900000000${i+1}`,
+      location: { type: 'Point', coordinates: shopCoords[i] }
+    });
     shops.push(s);
   }
 
-  for (let idx = 0; idx < seedProducts.length; idx++) {
-    const p = seedProducts[idx];
-    const existing = await ProductModel.findOne({ sku: p.sku });
-    const assignedShop = shops[idx % shops.length];
+  console.log('Seeding 28+ products...');
+  for (let i = 0; i < productsData.length; i++) {
+    const p = productsData[i];
+    // Distribute products across shops based on category or index
+    const assignedShop = shops[Math.floor(i / 6) % shops.length]; 
     
-    if (!existing) {
-      await ProductModel.create({ 
-        ...p, 
-        shopId: assignedShop.id,
-        shopName: assignedShop.name 
-      });
-    } else {
-      let updated = false;
-      if (existing.description == null && p.description) {
-        existing.description = p.description;
-        updated = true;
-      }
-      if (!existing.shopName) {
-        existing.shopName = assignedShop.name;
-        updated = true;
-      }
-      if (updated) {
-        await existing.save();
-      }
+    await ProductModel.create({
+      sku: p.sku,
+      name: p.name,
+      brand: p.brand,
+      quantity: p.quantity,
+      description: `Premium ${p.name} for your daily needs. Best quality guaranteed.`,
+      price: p.price,
+      stock: 50,
+      shopId: assignedShop._id,
+      shopName: assignedShop.name,
+      imageUrl: p.img
+    });
+
+    // Also add some price-comparison duplicates for Stationery and Dairy
+    if (p.category === 'Dairy' || p.category === 'Stationery') {
+        const nextShop = shops[(shops.indexOf(assignedShop) + 1) % shops.length];
+        await ProductModel.create({
+            sku: `${p.sku}-ALT`,
+            name: p.name,
+            brand: p.brand,
+            quantity: p.quantity,
+            description: `Alternative source for ${p.name}.`,
+            price: (parseFloat(p.price) + (Math.random() > 0.5 ? 2 : -2)).toFixed(2),
+            stock: 30,
+            shopId: nextShop._id,
+            shopName: nextShop.name,
+            imageUrl: p.img
+        });
     }
   }
 
   await mongoose.disconnect();
-
-  console.log('Seed complete.');
-  console.log(`Owner login: ${ownerEmail} / ${demoPassword}`);
-  console.log(`Customer login: ${customerEmail} / ${demoPassword}`);
-  console.log(`Admin login: ${adminEmail} / ${demoPassword}`);
+  console.log('==========================================');
+  console.log('SEED COMPLETE!');
+  console.log('==========================================');
+  console.log('Credentials (Password: password123):');
+  console.log('Owners: owner1@demo.com to owner5@demo.com');
+  console.log('Customers: customer1@demo.com to customer5@demo.com');
+  console.log('Delivery: delivery1@demo.com to delivery5@demo.com');
+  console.log('Admin: admin@demo.com');
+  process.exit(0);
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exit(1);
 });

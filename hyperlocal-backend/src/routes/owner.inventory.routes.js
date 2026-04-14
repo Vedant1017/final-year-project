@@ -37,7 +37,9 @@ export function createOwnerInventoryRouter(inventoryGateway) {
             price: j.price,
             stock: j.stock,
             shopId: j.shopId,
-            imageUrl: j.imageUrl ?? null
+            imageUrl: j.imageUrl ?? null,
+            brand: j.brand ?? '',
+            quantity: j.quantity ?? ''
           };
         })
       }))
@@ -72,7 +74,9 @@ export function createOwnerInventoryRouter(inventoryGateway) {
     price: z.string().min(1),
     stock: z.number().int().min(0).default(0),
     shopId: z.string().min(1),
-    imageUrl: z.string().optional()
+    imageUrl: z.string().optional(),
+    brand: z.string().optional(),
+    quantity: z.string().optional()
   });
 
   router.post('/products', async (req, res) => {
@@ -97,7 +101,9 @@ export function createOwnerInventoryRouter(inventoryGateway) {
     description: z.string().optional(),
     price: z.string().min(1).optional(),
     stock: z.number().int().min(0).optional(),
-    imageUrl: z.string().optional()
+    imageUrl: z.string().optional(),
+    brand: z.string().optional(),
+    quantity: z.string().optional()
   });
 
   router.patch('/products/:productId', async (req, res) => {
