@@ -4,6 +4,7 @@ import { requireRole } from '../middleware/requireRole.js';
 import { requireApprovedOwner } from '../middleware/requireApprovedOwner.js';
 import { ShopModel } from '../models/Shop.js';
 import { OrderModel } from '../models/Order.js';
+import { UserModel } from '../models/User.js';
 
 export const ownerRouter = Router();
 
@@ -52,6 +53,8 @@ ownerRouter.post('/setup-shop', async (req, res) => {
     ownerName,
     contactPhone
   });
+
+  await UserModel.findByIdAndUpdate(ownerId, { shopName: name });
 
   res.status(201).json({ success: true, shop });
 });

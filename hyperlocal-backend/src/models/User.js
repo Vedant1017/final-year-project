@@ -10,6 +10,7 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['CUSTOMER', 'OWNER', 'ADMIN', 'DELIVERY_MAN'], required: true },
+    shopName: { type: String, default: null },
     /** false = seller signed up, waiting for admin approval (OWNER only). */
     sellerApproved: { type: Boolean, default: true },
     locationPrompted: { type: Boolean, default: false },

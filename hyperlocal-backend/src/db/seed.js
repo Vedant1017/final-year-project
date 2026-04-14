@@ -113,11 +113,19 @@ async function main() {
       email: ownerEmail,
       role: 'OWNER',
       passwordHash,
-      sellerApproved: true
+      sellerApproved: true,
+      shopName: 'Fresh Mart' // Setting a default shop name
     });
-  } else if (owner.sellerApproved === undefined || owner.sellerApproved === null) {
-    owner.sellerApproved = true;
-    await owner.save();
+  } else {
+    // Ensure shopName is set if it was previously null
+    if (!owner.shopName) {
+      owner.shopName = 'Fresh Mart';
+      await owner.save();
+    }
+    if (owner.sellerApproved === undefined || owner.sellerApproved === null) {
+      owner.sellerApproved = true;
+      await owner.save();
+    }
   }
 
   const adminEmail = 'admin@demo.com';
@@ -133,7 +141,8 @@ async function main() {
 
   const shopNames = ['Fresh Mart', 'Green Valley Store', 'City Supermarket', 'Local Organic Grocers', 'Daily Needs Hub'];
   const shops = [];
-  for (const name of shopNames) {
+  for (let idx = 0; idx < shopNames.length; idx++) {
+    const name = shopNames[idx];
     let s = await ShopModel.findOne({ name, ownerId: owner.id });
     if (!s) {
       s = await ShopModel.create({
@@ -152,12 +161,27 @@ async function main() {
   for (let idx = 0; idx < seedProducts.length; idx++) {
     const p = seedProducts[idx];
     const existing = await ProductModel.findOne({ sku: p.sku });
+    const assignedShop = shops[idx % shops.length];
+    
     if (!existing) {
-      const assignedShop = shops[idx % shops.length];
-      await ProductModel.create({ ...p, shopId: assignedShop.id });
-    } else if (existing.description == null && p.description) {
-      existing.description = p.description;
-      await existing.save();
+      await ProductModel.create({ 
+        ...p, 
+        shopId: assignedShop.id,
+        shopName: assignedShop.name 
+      });
+    } else {
+      let updated = false;
+      if (existing.description == null && p.description) {
+        existing.description = p.description;
+        updated = true;
+      }
+      if (!existing.shopName) {
+        existing.shopName = assignedShop.name;
+        updated = true;
+      }
+      if (updated) {
+        await existing.save();
+      }
     }
   }
 
