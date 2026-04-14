@@ -12,7 +12,8 @@ const productSchema = new Schema(
     description: { type: String, default: null },
     price: { type: String, required: true },
     stock: { type: Number, required: true },
-    shopId: { type: String, required: true, index: true }
+    shopId: { type: String, required: true, index: true },
+    imageUrl: { type: String, default: null }
   },
   { timestamps: true }
 );

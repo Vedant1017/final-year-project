@@ -194,7 +194,8 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
     description: '',
     price: '',
     stock: 0,
-    shopId: ''
+    shopId: '',
+    imageUrl: ''
   });
 
   useEffect(() => {
@@ -205,7 +206,8 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
         description: product.description || '',
         price: product.price || '',
         stock: product.stock || 0,
-        shopId: product.shopId || shopId
+        shopId: product.shopId || shopId,
+        imageUrl: product.imageUrl || ''
       });
     } else {
       setFormData({
@@ -214,7 +216,8 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
         description: '',
         price: '',
         stock: 0,
-        shopId: shopId
+        shopId: shopId,
+        imageUrl: ''
       });
     }
   }, [product, shopId, isOpen]);
@@ -279,6 +282,20 @@ function ProductModal({ isOpen, onClose, product, shopId, onSave }) {
               value={formData.stock}
               onChange={e => setFormData({ ...formData, stock: parseInt(e.target.value) })}
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-gray-700 mb-1 uppercase tracking-wider">Image URL</label>
+            <input
+              type="text"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+              value={formData.imageUrl}
+              onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+              placeholder="https://..."
+            />
+            <p className="text-[10px] text-gray-500 mt-1 font-semibold italic">
+              Note: add image link only and upload the image on gdrive or any cloude platform and paste the link
+            </p>
           </div>
 
           <div>

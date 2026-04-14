@@ -12,6 +12,7 @@ import { AdminApprovalsPage } from './pages/AdminApprovalsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { SellerPendingGate } from './components/SellerPendingGate';
 import { OrderTrackingPage } from './pages/OrderTrackingPage';
+import { OrderListPage } from './pages/OrderListPage';
 import { DeliveryDashboardPage } from './pages/DeliveryDashboardPage';
 import { InstallPrompt } from './components/InstallPrompt';
 
@@ -70,6 +71,14 @@ export default function App() {
         element={
           <ProtectedRoute role="CUSTOMER">
             <OrderTrackingPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders-list"
+        element={
+          <ProtectedRoute role="CUSTOMER">
+            <OrderListPage />
           </ProtectedRoute>
         }
       />

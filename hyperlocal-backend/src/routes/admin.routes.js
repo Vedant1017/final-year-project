@@ -25,6 +25,25 @@ adminRouter.get('/pending-sellers', async (_req, res) => {
   });
 });
 
+adminRouter.get('/registered-sellers', async (_req, res) => {
+  const sellers = await UserModel.find({
+    role: 'OWNER',
+    sellerApproved: true
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json({
+    success: true,
+    sellers: sellers.map((u) => ({
+      id: u._id,
+      email: u.email,
+      createdAt: u.createdAt
+    }))
+  });
+});
+
+
 adminRouter.post('/sellers/:userId/approve', async (req, res) => {
   const user = await UserModel.findOne({
     _id: req.params.userId,

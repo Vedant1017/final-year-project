@@ -133,21 +133,21 @@ export function CustomerHomePage() {
         </div>
       </header>
 
-       <div className="mt-10 mb-6 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-black text-brand-900 border border-brand-100">
-              Blinkit-style quick shop
-            </div>
-            <div className="mt-3 text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-              Welcome to <span className="text-brand-900">SnapCart Lite</span>
-            </div>
-            <div className="mt-2 text-sm md:text-base text-gray-600 font-semibold max-w-2xl">
-              Add items to your cart, checkout, and confirm payment in seconds. Designed for your final-year demo—clean, fast,
-              and friendly.
-            </div>
+      <div className="mt-10 mb-6 rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div className="p-6 md:p-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-black text-brand-900 border border-brand-100">
+            Blinkit-style quick shop
           </div>
-          <div className="h-2 bg-gradient-to-r from-brand-900 via-brand-500 to-brand-300" />
+          <div className="mt-3 text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+            Welcome to <span className="text-brand-900">SnapCart Lite</span>
+          </div>
+          <div className="mt-2 text-sm md:text-base text-gray-600 font-semibold max-w-2xl">
+            Add items to your cart, checkout, and confirm payment in seconds. Designed for your final-year demo—clean, fast,
+            and friendly.
+          </div>
         </div>
+        <div className="h-2 bg-gradient-to-r from-brand-900 via-brand-500 to-brand-300" />
+      </div>
 
       <main className="container mx-auto px-4 md:px-8 max-w-7xl pt-6">
         {/* Search + products first so they’re visible right after login/signup */}
@@ -168,26 +168,50 @@ export function CustomerHomePage() {
 
         {orders.length > 0 && (
           <div className="mb-6">
-            <div className="text-lg font-black text-gray-900 mb-3">Your active orders</div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {orders.map((o) => (
-                <Link
-                  key={o.id}
-                  to={`/orders/${o.id}`}
-                  className="bg-white border text-left border-gray-100 shadow-sm p-4 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all flex justify-between items-center"
-                >
-                  <div>
-                    <div className="font-black text-gray-900 text-sm">Order {o.id.substring(0, 8)}</div>
-                    <div className="text-xs text-brand-900 font-bold bg-brand-50 border border-brand-100 rounded-md px-2 py-0.5 inline-block mt-1">
-                      {o.status.replace(/_/g, ' ')}
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <div className="text-lg font-black text-gray-900">Your latest order</div>
+                <div className="text-xs font-semibold text-gray-500">Currently tracking</div>
+              </div>
+              <Link to="/orders-list" className="text-sm font-black text-brand-900 hover:underline">
+                View all orders
+              </Link>
+            </div>
+            <div className="grid gap-3 md:grid-cols-1">
+              {orders.slice(0, 1).map((o) => {
+                let bgClass = "bg-black text-white hover:bg-gray-900";
+                let textClassPrimary = "text-white";
+                let textClassSecondary = "text-gray-300";
+
+                if (['COMPLETED', 'DELIVERED'].includes(o.status)) {
+                  bgClass = "bg-green-100 border border-green-200 text-green-900 hover:bg-green-200";
+                  textClassPrimary = "text-green-900";
+                  textClassSecondary = "text-green-700";
+                } else if (['CANCELED', 'CANCELLED'].includes(o.status)) {
+                  bgClass = "bg-red-100 border border-red-200 text-red-900 hover:bg-red-200";
+                  textClassPrimary = "text-red-900";
+                  textClassSecondary = "text-red-700";
+                }
+
+                return (
+                  <Link
+                    key={o.id}
+                    to={`/orders/${o.id}`}
+                    className={`${bgClass} shadow-sm p-4 rounded-2xl transition-all flex justify-between items-center text-left max-w-2xl`}
+                  >
+                    <div>
+                      <div className={`font-black text-sm ${textClassPrimary}`}>Order {o.id.substring(0, 8)}</div>
+                      <div className={`text-xs font-bold rounded-md px-2 py-0.5 inline-block mt-1 bg-white/20`}>
+                        {o.status.replace(/_/g, ' ')}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-black text-gray-900">₹{o.totalAmount}</div>
-                    <div className="text-xs text-gray-500 font-semibold">{new Date(o.createdAt).toLocaleDateString()}</div>
-                  </div>
-                </Link>
-              ))}
+                    <div className="text-right">
+                      <div className={`font-black ${textClassPrimary}`}>₹{o.totalAmount}</div>
+                      <div className={`text-xs font-semibold ${textClassSecondary}`}>{new Date(o.createdAt).toLocaleDateString()}</div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
@@ -223,50 +247,36 @@ export function CustomerHomePage() {
                   key={p.id}
                   type="button"
                   onClick={() => nav(`/product/${p.id}`)}
-                  className="text-left bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                  className="text-left bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md hover:border-brand-300 transition-all flex flex-col"
                 >
-                  <div className="aspect-square bg-gray-50">
-                    <ProductImage src={imageBySku[p.sku]} alt={p.name} />
+                  <div className="aspect-square bg-gray-50 p-4">
+                    <ProductImage src={p.imageUrl || imageBySku[p.sku]} alt={p.name} />
                   </div>
-                  <div className="p-3 flex-1 flex flex-col justify-between">
+                  <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="text-sm font-black text-gray-900 line-clamp-2">{p.name}</div>
+                      <div className="text-sm font-black text-gray-900 line-clamp-2 leading-tight">{p.name}</div>
+                      <div className="text-xs text-brand-900 mt-1.5 font-bold uppercase tracking-wider">{p.shopName || `Shop ${p.shopId?.substring(0, 6) || ''}`}</div>
                       <div className="text-xs text-gray-500 mt-0.5 font-semibold">{p.sku}</div>
-                      <div className="text-xs text-gray-600 mt-1 font-semibold line-clamp-2">
+                      <div className="text-xs text-gray-600 mt-1.5 font-semibold line-clamp-2">
                         {p.description ?? 'Tap to view details'}
                       </div>
                     </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="font-black text-brand-900">₹{p.price}</span>
-                      <div className="flex items-center gap-2">
-                        {qty > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setQuantity(p.id, qty - 1);
-                            }}
-                            className="bg-brand-50 hover:bg-brand-100 text-brand-900 w-8 h-8 rounded-full flex items-center justify-center border border-brand-100"
-                          >
-                            <span className="text-lg leading-none">-</span>
-                          </button>
-                        )}
-                        {qty > 0 && <span className="font-black text-sm text-gray-900 w-3 text-center">{qty}</span>}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setQuantity(p.id, qty + 1);
-                          }}
-                          className="bg-brand-900 hover:bg-brand-500 text-white w-8 h-8 rounded-full flex items-center justify-center"
-                        >
-                          <span className="text-xl leading-none">+</span>
-                        </button>
-                      </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="font-black text-brand-900 text-lg">₹{p.price}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (qty === 0) setQuantity(p.id, 1);
+                          else nav('/cart');
+                        }}
+                        className={`text-xs font-black px-4 py-2 rounded-xl transition-colors ${qty > 0 ? 'bg-green-100 text-green-800' : 'bg-brand-900 text-white hover:bg-brand-500'}`}
+                      >
+                        {qty > 0 ? 'In Cart' : 'Add'}
+                      </button>
                     </div>
-                    <div className="mt-2 text-xs text-gray-500 font-semibold">{p.stock} left</div>
+                    <div className="mt-3 text-xs text-gray-400 font-bold">{p.stock} left in stock</div>
                   </div>
                 </button>
               );
@@ -274,9 +284,9 @@ export function CustomerHomePage() {
           </div>
         )}
 
-       
 
-        <div className="mb-6">
+
+        <div className="mb-6 py-6">
           <LiveMapDelivery />
         </div>
       </main>

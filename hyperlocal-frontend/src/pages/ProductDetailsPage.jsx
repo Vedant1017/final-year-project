@@ -39,13 +39,20 @@ export function ProductDetailsPage() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
-  const { items, refresh, setQuantity } = useCartStore();
+  const { items, refresh, setQuantity, loading } = useCartStore();
 
-  const qty = useMemo(() => {
+  const storeQty = useMemo(() => {
     if (!product) return 0;
     const it = items.find((i) => i.productId === product.id);
     return it?.quantity ?? 0;
   }, [items, product]);
+
+  const [localQty, setLocalQty] = useState(0);
+  const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    setLocalQty(storeQty);
+  }, [storeQty]);
 
   useEffect(() => {
     (async () => {
@@ -82,11 +89,24 @@ export function ProductDetailsPage() {
     );
   }
 
+  const handleUpdateCart = async () => {
+    setUpdating(true);
+    try {
+      await setQuantity(product.id, localQty);
+      // Wait for store to refresh it
+      await refresh();
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const isChanged = localQty !== storeQty;
+
   return (
     <div className="min-h-screen bg-brand-50">
       <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <button onClick={() => nav(-1)} className="font-black text-brand-900">
+          <button onClick={() => nav(-1)} className="font-black text-brand-900 tracking-tight">
             ← Back
           </button>
           <Link to="/cart" className="font-black text-brand-900 hover:underline">
@@ -99,45 +119,61 @@ export function ProductDetailsPage() {
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden md:flex md:gap-6">
           <div className="md:w-1/2 bg-gray-50 p-6">
             <div className="aspect-square">
-              <Img src={imageBySku[product.sku]} alt={product.name} />
+              <Img src={product.imageUrl || imageBySku[product.sku]} alt={product.name} />
             </div>
           </div>
-          <div className="md:w-1/2 p-6">
-            <div className="text-xs font-semibold text-gray-500">{product.sku}</div>
-            <div className="text-3xl font-black text-gray-900 mt-1">{product.name}</div>
-            <div className="text-sm text-gray-600 font-semibold mt-3">{product.description ?? 'No description available.'}</div>
-
-            <div className="mt-5 flex items-center justify-between">
-              <div>
-                <div className="text-xs font-semibold text-gray-500">Price</div>
-                <div className="text-2xl font-black text-brand-900">₹{product.price}</div>
+          <div className="md:w-1/2 p-6 flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{product.sku}</div>
+              <div className="text-3xl font-black text-gray-900 mt-2 leading-tight">{product.name}</div>
+              <div className="text-sm text-gray-600 font-semibold mt-4 bg-gray-50 p-4 rounded-xl border border-gray-100">{product.description ?? 'No description available.'}</div>
+              
+              <div className="mt-6 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-gray-500">Price</div>
+                  <div className="text-3xl font-black text-brand-900">₹{product.price}</div>
+                </div>
+                <div className="text-sm font-black text-green-700 bg-green-100 px-3 py-1.5 rounded-full">{product.stock} in stock</div>
               </div>
-              <div className="text-sm font-semibold text-gray-500">{product.stock} in stock</div>
             </div>
 
-            <div className="mt-6 flex items-center gap-3">
-              <button
-                className="w-10 h-10 rounded-full bg-brand-50 border border-brand-100 font-black text-brand-900 disabled:opacity-50"
-                disabled={qty <= 0}
-                onClick={() => setQuantity(product.id, Math.max(0, qty - 1))}
-              >
-                -
-              </button>
-              <div className="w-10 text-center text-lg font-black">{qty}</div>
-              <button
-                className="w-10 h-10 rounded-full bg-brand-900 text-white font-black disabled:opacity-50"
-                disabled={product.stock <= 0}
-                onClick={() => setQuantity(product.id, qty + 1)}
-              >
-                +
-              </button>
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4 bg-gray-50 p-2 rounded-2xl w-max border border-gray-200">
+                  <button
+                    className="w-12 h-12 rounded-xl bg-white border border-gray-200 shadow-sm font-black text-brand-900 disabled:opacity-50 hover:bg-gray-100 transition-colors"
+                    disabled={localQty <= 0}
+                    onClick={() => setLocalQty(Math.max(0, localQty - 1))}
+                  >
+                    -
+                  </button>
+                  <div className="w-12 text-center text-xl font-black">{localQty}</div>
+                  <button
+                    className="w-12 h-12 rounded-xl bg-brand-900 shadow-sm text-white font-black disabled:opacity-50 hover:bg-brand-800 transition-colors"
+                    disabled={product.stock <= 0}
+                    onClick={() => setLocalQty(localQty + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+                
+                <div className="flex gap-3 mt-2">
+                  <button
+                    disabled={!isChanged || updating}
+                    onClick={handleUpdateCart}
+                    className="flex-1 px-5 py-4 rounded-2xl bg-brand-900 text-white font-black hover:bg-brand-500 disabled:opacity-50 transition-all text-lg"
+                  >
+                    {updating ? 'Updating...' : isChanged ? 'Update Cart' : 'In Cart'}
+                  </button>
 
-              <Link
-                to="/cart"
-                className="ml-auto px-5 py-3 rounded-2xl bg-brand-900 text-white font-black hover:bg-brand-500"
-              >
-                Go to cart
-              </Link>
+                  <Link
+                    to="/cart"
+                    className="flex-1 text-center px-5 py-4 rounded-2xl bg-gray-900 text-white font-black hover:bg-gray-800 transition-all text-lg"
+                  >
+                    View Cart
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
